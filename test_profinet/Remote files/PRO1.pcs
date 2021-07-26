@@ -1,0 +1,754 @@
+'!TITLE "MAIN"
+#include "VAR_TAB.h"
+#include "DIO_TAB.h"
+
+' --------------------------  variabili globali -----------------------------------  
+
+' Posizione della coordinata in alto a sinistra del vassoio delle ferriti
+Dim ORIGIN As Position
+
+' ---------------------------------------------------------------------------------
+
+
+
+' --------------------------  ingressi PLC -> ROBOT --------------------------------
+' numero della ferrite per fare il pickup
+DefIO id_ferrite = Integer, 560
+
+' numero della missione
+DefIO num_missione = Integer, 592
+
+' bit start missione
+DefIO start_missione = Bit, 608
+
+' bit enable_in nell'area di interferenza e di lavoro
+DefIO enable_in = Bit, 609
+
+' bit enable_exit per l'uscita dall'area di lavoro
+DefIO enable_exit = Bit, 610
+
+DefIO esegui_homing = Bit, 611
+' ---------------------------------------------------------------------------------
+
+
+
+
+' --------------------------  ingressi ROBOT -> PLC --------------------------------
+' invio al PLC comando di chiusura pinza 1 - prelevamento ferriti nuove
+defio fwd_chiusura_pinza_1 = Bit, 800
+
+' invio al PLC comando di apertura pinza 1 - prelevamento ferriti nuove
+defio fwd_apertura_pinza_1 = Bit, 802
+
+' invio al PLC comando di chiusura pinza 2 - prelevamento ferriti tagliate
+defio fwd_chiusura_pinza_2 = Bit, 801
+
+' invio al PLC comando di apertura pinza 1 - prelevamento ferriti tagliate
+defio fwd_apertura_pinza_2 = Bit, 803
+
+
+'return numero della ferrite da prendere
+DefIO fwd_id_ferrite = integer, 816
+
+' return numero della missione caricata
+DefIO fwd_id_missione = integer, 848
+
+' feedback al plc che la missione è in esecuzione
+defio fwd_mission_running= Bit, 864
+
+' feedback al plc che il robot è sopra al punto di pick/place MA FUORI INGOMBRO
+' defio fwd_wait_to_enter= Bit, 865
+
+' feedback al plc che il robot è in posizione nell'area di lavoro per il pick and place
+defio fwd_in_pos= Bit, 865
+
+' feedback al plc che il robot è fuori dall'area di lavoro per il pick and place
+defio fwd_out_of_area = Bit, 866
+
+' feedback al plc che il robot è fuori dall'area di lavoro per il pick and place
+defio fwd_robot_in_home = Bit, 879
+
+
+' feedback al plc che il robot è in area di pick
+defio fwd_in_area_pick = Bit, 872
+
+' feedback al plc che il robot è in area di taglio dx
+defio fwd_in_area_taglio_dx = Bit, 873
+
+' feedback al plc che il robot è in area di taglio sx
+defio fwd_in_area_taglio_sx = Bit, 874
+
+' feedback al plc che il robot è in area di inserimento 1
+defio fwd_in_area_inserimento_1 = Bit, 875
+
+' feedback al plc che il robot è in area di inserimento 2
+defio fwd_in_area_inserimento_2 = Bit, 876
+
+' feedback al plc che il robot è in area di inserimento 3
+defio fwd_in_area_inserimento_3 = Bit, 877
+
+' feedback al plc che il robot è in area di inserimento 4
+defio fwd_in_area_inserimento_4 = Bit, 878
+
+
+' return the current active program
+defio fwd_num_prg = integer, 928
+
+' return the current setting value of external speed.
+defio fwd_speed_vel= integer, 944
+
+' return current setting value of external acceleration.
+DefIO fwd_acceleration = integer, 960
+
+' return the current setting value of external deceleration.
+DefIO fwd_decellaration = integer, 976
+
+
+
+
+' ---------------------------------------------------------------------------------
+
+
+
+
+
+
+function resetAreaScambioRobotToPLC() as integer
+' 	Set the I/O port numbers "848" through "878" to OFF
+'   Reset IO[848 To 878]
+	Reset IO[800 To 900]
+	resetAreaScambioRobotToPLC=1
+end Function  
+
+
+
+' ---------------------------------------------------------------------------------
+' ------------------------------ INIZIO PROGRAMMA ---------------------------------
+' ---------------------------------------------------------------------------------
+
+'
+'Function defWorkingArea() as integer
+'	
+''	dim altezza as integer
+''	altezza = 40
+''
+''	' Define an area specified by P[50], V[10] in the area number 2
+''	Area 1, P[p0_origine_vassoio], V(195,264,altezza), UO872_In_Area_Pick, -1, 0
+''
+''	Area 2, P[p1_place_taglio_dx_pz1], V(10,10,altezza), UO873_In_Area_Taglio_DX, -1, 0
+''
+''	Area 3, P[p2_place_taglio_sx_pz1], V(10,10,altezza), UO874_In_Area_Taglio_SX, -1, 0
+''
+''	Area 4, P[p5_place_inserimento_1_pz2], V(10,10,altezza), UO875_In_Area_Inserimento_1, -1, 0
+''
+''	Area 5, P[p6_place_inserimento_2_pz2], V(10,10,altezza), UO876_In_Area_Inserimento_2, -1, 0
+''
+''	Area 6, P[p7_place_inserimento_3_pz2], V(10,10,altezza), UO877_In_Area_Inserimento_3, -1, 0
+''
+''	Area 7, P[p8_place_inserimento_4_pz2], V(10,10,altezza), UO878_In_Area_Inserimento_4, -1, 0
+'
+'	
+'	defWorkingArea=1
+'end Function  
+
+
+
+
+
+
+function robotExternalInfo() as integer
+	fwd_num_prg = 1
+
+	fwd_speed_vel= CurExtSpd
+	' PrintDbg fwd_speed_vel
+	
+	fwd_acceleration = CurExtAcc
+	' PrintDbg fwd_acceleration
+	
+	fwd_decellaration = CurExtDec
+	' PrintDbg fwd_decellaration
+
+	robotExternalInfo=1
+end Function  
+
+
+
+Function moveOnPoint(pt as Position) as integer
+	' movimentazione del robot in una posizione nei pressi del punto finale
+	' in fuori ingombro
+	dim r as integer
+
+	dim dist_approccio as integer
+
+	dist_approccio = 50
+	
+	Dim motor_state As Integer
+	Dim curr_pos As Position
+
+	Dim x as single
+	Dim z as single
+
+'	Acquire the motor on status
+	motor_state = MotorState
+ 
+
+	fwd_out_of_area = 1 ' PLC 44.2
+' 	wait enable_in = 1
+
+	fwd_in_pos = 0
+
+	if I[I0_NUM_MISSIONE] >= 6 and I[I0_NUM_MISSIONE] <= 9 then
+		curr_pos = pt
+
+		z = posz(pt)
+		z = z + dist_approccio
+
+		x = posx(pt)
+		x = x - 60
+		letx curr_pos = x
+		letz curr_pos = z
+
+		Move P, @P  curr_pos
+		WaitMotion 6
+		approach p, pt, dist_approccio, Speed = 100	
+
+	else
+		approach p, pt, dist_approccio, Speed = 100		
+	end if
+
+
+
+
+	'r = setAreaPLC()
+
+	wait (enable_in = ON)  or (IO[UI611_homing] = ON)  ' PLC 12.1
+	' aspetto che inizi la rampa di accellerazione per comunicare al PLC che sto nell'area di ingombro
+	WaitMotion 5	
+	' setto a 0 il bit per informare il PLC che sono in ingombro
+	fwd_out_of_area = 0 ' PLC 44.2
+
+
+
+
+	Move L, @0 pt, s=100
+	WaitMotion 5
+	delay 100
+
+	'informo il plc che sono arrivato a destinazione in modo che possa chiudere le pinze
+	fwd_in_pos = 1 'PLC 44.1
+
+	' aspetto che il plc informi il robot che può andarsene dall'area di lavoro
+	' movimentazione del robot fuori dal punto finale e posizionamento in fuori ingombro
+	wait (enable_exit = ON)  or (IO[UI611_homing] = ON)  
+
+	' Move to a position 100 mm away from the current position
+  	Depart L, dist_approccio, S = 100
+
+	WaitMotion 6
+
+	if I[I0_NUM_MISSIONE] >= 6 and I[I0_NUM_MISSIONE] <= 9 then				
+		curr_pos = curpos
+
+
+		x = posx(curr_pos)
+		x = x - 60
+		letx curr_pos = x
+
+		Move P, @P  curr_pos
+		WaitMotion 6
+
+	end if
+
+	'aspetto che i motori inizino la decellerazione in tal caso imposto che sono fuori ingombro
+
+	fwd_out_of_area = 1
+
+	'r = resetAreaPLC()
+	fwd_in_pos = 0
+	moveOnPoint=1
+end Function  
+
+
+
+
+
+' le coordinate dei punti sono sempre riferite al tool della pinza UNO
+
+' --------------------------------PICK DA VASSOIO-------------------------------------
+Function m0001_pickVassoio(byval id_ferrite As Integer ) as Integer 
+	' la presa dal vassoio viene sempre effettuata con la PINZA 1
+	' id_ferrite : viene fornito dal PLC, è un intero che informa il robot quale ferrite prelevare.
+	fwd_mission_running = 1
+	I[I1_NUM_FERRITE] = id_ferrite
+	fwd_id_ferrite = id_ferrite
+	
+	dim diametro_ferrite as single 'diametro ferrite [mm]
+	diametro_ferrite = 7.95
+	
+	dim dist_btw_col as single ' distanza tra colonne [mm]
+	dist_btw_col = 46
+	dim dist_btw_row as single	' distanza tra righe [mm]
+	dist_btw_row = 14
+
+	Dim max_col As Integer
+	Dim max_row As Integer
+	
+	max_col = 5
+    max_row = 20
+	
+	' calcolo l'indice di riga e colonna della ferrite
+	Dim row As Integer
+	Dim col As Integer
+	col = id_ferrite \ max_row
+	row = id_ferrite Mod max_row
+
+		
+	Dim X As Single
+	Dim Y As Single	
+	' prelevo le coordinate di origine
+	X = posx(ORIGIN)
+	Y = posy(ORIGIN)
+
+	' il vassoio delle ferriti viene percorso dal robot in questo modo:
+	' Dall'origine calcolo un offset in X ed Y in base al numero della ferrite che devo prelevare
+	' la posizione X scorre le righe
+	' la posizione Y scorre le colonne
+	Y = Y - dist_btw_col * col	
+	X = X - diametro_ferrite * row
+
+	' se ho terminato il segmento di ferriti presente nella riga della vassoio, allora devo aggiungere
+	' un offeset 
+	if row > 9 then
+		X = X - dist_btw_row	
+	end if
+	
+	' defizione del punto di pick
+	Dim pick_pos As Position
+	pick_pos = ORIGIN
+
+	' inserimento delle coordinate X ed Y calcolate nel punto di pick	
+	letx pick_pos = X
+ 	lety pick_pos = Y
+	
+	'salvataggio del punto di prelievo nelle varibili di sistema
+	
+	P[p10_actual_pick_point]=pick_pos
+
+	' movimentazione del robot in posizione
+	dim ret_val as integer
+	ret_val = moveOnPoint(pick_pos)
+
+	wait ret_val=1 	
+ 	' se tutto okay allora restituisco 1 ma prima alzo l'asta
+	fwd_mission_running = 0
+	m0001_pickVassoio = ret_val 	
+
+End Function
+
+
+' ------------------------------------------------------------------------------------
+
+
+' ------------------PLACE FERRITE DA TAGLIARE NEI GRUPPI TAGLIO-----------------------
+
+Function m0002_placeGruppoTaglioDX() as Integer 
+	' place della ferrite sul gruppo taglio DX effettuato sempre con la PINZA 1
+	' si suppone che il robot abbia già la ferrite nella pinza
+	fwd_mission_running = 1
+	
+	' movimentazione del robot in posizione
+	dim ret_val as integer
+	ret_val = moveOnPoint(p[p1_place_taglio_dx_pz1])
+
+	wait ret_val=1 	
+
+ 	' se tutto okay allora restituisco 1
+	fwd_mission_running = 0
+	m0002_placeGruppoTaglioDX = ret_val 
+End Function
+
+Function m0003_placeGruppoTaglioSX() as Integer 
+	' place della ferrite sul gruppo taglio SX effettuato sempre con la PINZA 1
+	' movimentazione del robot in posizione
+	fwd_mission_running = 1
+
+	dim ret_val as integer
+	ret_val = moveOnPoint(p[p2_place_taglio_sx_pz1])
+
+	wait ret_val=1 	
+
+ 	' se tutto okay allora restituisco 1
+	fwd_mission_running = 0
+	m0003_placeGruppoTaglioSX = ret_val 
+End Function
+
+' -----------------------------------------------------------------------------------
+
+
+' ------------------PICK FERRITE TAGLIATA DAI GRUPPI TAGLIO--------------------------
+
+Function m0004_pickGruppoTaglioDX() as Integer 
+	' pick della ferrite completata sul gruppo taglio DX effettuata la PINZA 2
+	fwd_mission_running = 1
+
+	dim ret_val as integer
+	ret_val = moveOnPoint(p[p3_pick_taglio_dx_pz2])
+
+	wait ret_val=1 	
+
+ 	' se tutto okay allora restituisco 1
+	fwd_mission_running = 0
+	m0004_pickGruppoTaglioDX = ret_val 
+End Function
+
+Function m0005_pickGruppoTaglioSX() as Integer 
+	' pick della ferrite completata sul gruppo taglio SX effettuata la PINZA 2
+	fwd_mission_running = 1
+
+	dim ret_val as integer
+	ret_val = moveOnPoint(p[p4_pick_taglio_sx_pz2])
+
+	wait ret_val=1 	
+
+ 	' se tutto okay allora restituisco 1
+	fwd_mission_running = 0
+	m0005_pickGruppoTaglioSX = ret_val
+End Function
+
+' -----------------------------------------------------------------------------------
+
+
+' ----------------PLACE DELLE FERRITI TAGLIATE NEI GRUPPI INSERIMENTO----------------
+Function m0006_placeGruppoInserimentoFerriteUNO() as Integer 
+	' place della ferrite completata sul gruppo inserimento ferrite UNO con la PINZA 2
+	fwd_mission_running = 1
+
+	dim ret_val as integer
+	ret_val = moveOnPoint(p[p5_place_inserimento_1_pz2])
+
+	wait ret_val=1 	
+	
+ 	' se tutto okay allora restituisco 1
+	fwd_mission_running = 0
+	m0006_placeGruppoInserimentoFerriteUNO = ret_val 
+End Function
+
+Function m0007_placeGruppoInserimentoFerriteDUE() as Integer 
+	' place della ferrite completata sul gruppo inserimento ferrite DUE con la PINZA 2
+	fwd_mission_running = 1
+
+	dim ret_val as integer
+	ret_val = moveOnPoint(p[p6_place_inserimento_2_pz2])
+
+	wait ret_val=1 	
+	
+ 	' se tutto okay allora restituisco 1
+	fwd_mission_running = 0
+	m0007_placeGruppoInserimentoFerriteDUE = ret_val 
+End Function
+
+Function m0008_placeGruppoInserimentoFerriteTRE() as Integer 
+	' place della ferrite completata sul gruppo inserimento ferrite TRE con la PINZA 2
+	fwd_mission_running = 1
+
+	dim ret_val as integer
+	ret_val = moveOnPoint(p[p7_place_inserimento_3_pz2])
+
+	wait ret_val=1 	
+	
+ 	' se tutto okay allora restituisco 1
+	fwd_mission_running = 0
+	m0008_placeGruppoInserimentoFerriteTRE = ret_val 
+End Function
+
+Function m0009_placeGruppoInserimentoFerriteQUATTRO() as Integer 
+	' place della ferrite completata sul gruppo inserimento ferrite QUATTRO con la PINZA 2
+	fwd_mission_running = 1
+
+	dim ret_val as integer
+	ret_val = moveOnPoint(p[p8_place_inserimento_4_pz2])
+
+	wait ret_val=1 	
+	
+ 	' se tutto okay allora restituisco 1
+	fwd_mission_running = 0
+	m0009_placeGruppoInserimentoFerriteQUATTRO = ret_val 
+End Function
+
+' -----------------------------------------------------------------------------------
+
+
+
+' -----------------------------------------------------------------------------------
+' -------------------------------------HOMING----------------------------------------
+' -----------------------------------------------------------------------------------
+
+Function m0010_Homing() as Integer 
+	' posizionamento in home e invio feedback posizione raggiunta
+	Dim actual_pos As Position
+
+	dim Length as single
+	dim ret_val as integer
+	Length = 45
+	
+	Dim motor_state As Integer
+
+'	Acquire the motor on status
+	motor_state = MotorState
+
+
+	actual_pos = CurPos
+	If OutRange(DevH(DestPos, P(0, 0, -Length))) = 0 Then
+		Depart P, Length
+	End If	
+		' Depart L, 40, S = 100
+		' movimentazione del robot nel punto finale
+	Move P, J[j9_homing_point]
+
+
+	fwd_robot_in_home = 1
+
+	fwd_out_of_area = 1
+
+
+ 	' se tutto okay allora restituisco 1
+ 
+	ret_val = resetAreaScambioRobotToPLC()
+'	set IO[872 To 878]
+
+	
+	m0010_Homing = 1
+
+End Function
+
+
+
+Function cicloAutomaticoSoloRobot() As Integer
+
+
+	TakeArm Keep = 0
+	motor on
+	ChangeTool  1
+
+	'definizione del punto di pick in alto a sinistra  
+	ORIGIN =  P[p0_origine_vassoio]
+'	old version
+	dim ret_val as integer
+	dim id as integer
+	dim robot_in_home as integer
+	Dim actual_pos As Position
+
+	dim missione as integer
+	missione = 1
+	
+	dim a as integer
+
+
+
+	' prelevo la prima ferrite
+	ret_val = m0001_pickVassoio(0)
+'	Delay 2000
+	
+	' lascio la ferrite nel gruppo taglio di destra
+	ret_val = m0002_placeGruppoTaglioDX()
+'	Delay 2000
+	
+	' prelevo la seconda ferrite
+	a = a + 1
+	ret_val = m0001_pickVassoio(1)
+'	Delay 2000
+
+	' lascio la ferrite nel gruppo taglio di sinistra
+	ret_val = m0003_placeGruppoTaglioSX()
+'	Delay 2000
+
+
+
+	For a = 2 To 80 Step 1
+
+'		prelevo la terza ferrite
+		a = a + 1
+		ret_val = m0001_pickVassoio(a)
+'		Delay 2000
+		'prelevo la ferrite tagliata dal gruppo DX
+		ret_val = m0004_pickGruppoTaglioDX()
+'		Delay 2000
+		'lascio quella da tagliare nel gruppo DX
+		ret_val = m0002_placeGruppoTaglioDX()
+'		Delay 2000
+		' lascio la ferrite tagliata nel gruppo 1
+		ret_val = m0006_placeGruppoInserimentoFerriteUNO()
+
+
+
+		a = a + 1
+		ret_val = m0001_pickVassoio(a)
+'		Delay 2000
+		ret_val = m0005_pickGruppoTaglioSX()
+'		Delay 2000
+		ret_val = m0003_placeGruppoTaglioSX()
+'		Delay 2000
+		ret_val = m0007_placeGruppoInserimentoFerriteDUE()
+
+
+
+		'prelevo la terza ferrite
+		a = a + 1
+		ret_val = m0001_pickVassoio(a)
+'		Delay 2000
+		'prelevo la ferrite tagliata dal gruppo DX
+		ret_val = m0004_pickGruppoTaglioDX()
+'		Delay 2000
+		'lascio quella da tagliare nel gruppo DX
+		ret_val = m0002_placeGruppoTaglioDX()
+'		Delay 2000
+		' lascio la ferrite tagliata nel gruppo 1
+		ret_val = m0008_placeGruppoInserimentoFerriteTRE()
+
+
+
+		a = a + 1
+		ret_val = m0001_pickVassoio(a)
+'		Delay 2000
+		ret_val = m0005_pickGruppoTaglioSX()
+'		Delay 2000
+		ret_val = m0003_placeGruppoTaglioSX()
+'		Delay 2000
+		ret_val = m0009_placeGruppoInserimentoFerriteQUATTRO()
+	Next
+	cicloAutomaticoSoloRobot = 1
+End Function
+
+
+
+
+
+
+
+
+' -----------------------------------------------------------------------------------
+' -----------------------------------------------------------------------------------
+
+
+
+Sub Main
+
+	TakeArm Keep = 0
+'	motor on
+	ChangeTool  1
+
+	'definizione del punto di pick in alto a sinistra  
+	ORIGIN =  P[p0_origine_vassoio]
+'	old version
+	dim ret_val as integer
+	dim id as integer
+	dim robot_in_home as Integer
+	Dim actual_pos As Position
+
+	Dim timeout as integer
+	SpeedMode 0 
+	HighPathAccuracy True  
+	Accel 100, 100
+	PayLoad 500
+	ExtSpeed 100
+	ExtAccel 100, 100
+
+
+	timeout = 60000
+	do 
+	
+		ret_val = robotExternalInfo()
+'		ret_val = defWorkingArea()
+		' numero della missione
+'		DefIO num_missione = Integer, 592
+		
+		I[I0_NUM_MISSIONE] = num_missione
+
+		if io[UI611_homing] = ON then
+			PrintDbg "missione home"
+			ret_val = m0010_Homing()
+		else 
+			SELECT CASE I[I0_NUM_MISSIONE]
+				CASE 1
+					PrintDbg "missione 1 - pick di una nuova ferrite"
+					fwd_id_missione = 1
+					robot_in_home = 0
+					wait start_missione = 1 or IO[UI611_homing] = ON
+					id = id_ferrite
+					ret_val = m0001_pickVassoio(id)
+				
+
+				CASE 2
+					PrintDbg "missione 2 - place ferrite taglio DX"
+					fwd_id_missione = 2
+					robot_in_home = 0
+					wait start_missione = 1 or IO[UI611_homing] = ON
+					ret_val = m0002_placeGruppoTaglioDX()
+				
+
+				CASE 3
+					PrintDbg "missione 3 - place ferrite taglio SX"
+					fwd_id_missione = 3
+					robot_in_home = 0
+					wait start_missione = 1 or IO[UI611_homing] = ON
+					ret_val = m0003_placeGruppoTaglioSX()
+				
+
+				CASE 4
+					PrintDbg "missione 4 - pick ferrite completata taglio DX"
+					fwd_id_missione = 4
+					robot_in_home = 0
+					wait start_missione = 1 or IO[UI611_homing] = ON
+					ret_val = m0004_pickGruppoTaglioDX()
+				
+		
+				CASE 5
+					PrintDbg "missione 5 - pick ferrite completata taglio SX"
+					fwd_id_missione = 5
+					robot_in_home = 0
+					wait start_missione = 1 or IO[UI611_homing] = ON
+					ret_val = m0005_pickGruppoTaglioSX()
+				
+
+				CASE 6
+					PrintDbg "missione 6 - place inserimento 1"
+					fwd_id_missione = 6
+					robot_in_home = 0
+					wait start_missione = 1 or IO[UI611_homing] = ON
+					ret_val = m0006_placeGruppoInserimentoFerriteUNO()
+				
+
+				CASE 7
+					PrintDbg "missione 7 - place inserimento 2"
+					fwd_id_missione = 7
+					robot_in_home = 0
+					wait start_missione = 1 or IO[UI611_homing] = ON
+					ret_val = m0007_placeGruppoInserimentoFerriteDUE()
+				
+
+				CASE 8
+					PrintDbg "missione 8 - place inserimento 3"
+					fwd_id_missione = 8
+					robot_in_home = 0
+					wait start_missione = 1 or IO[UI611_homing] = ON
+					ret_val = m0008_placeGruppoInserimentoFerriteTRE()
+				
+				CASE 9
+					PrintDbg "missione 9 - place inserimento 4"
+					fwd_id_missione = 9
+					robot_in_home = 0
+					wait start_missione = 1 or IO[UI611_homing] = ON
+					ret_val = m0009_placeGruppoInserimentoFerriteQUATTRO()
+				
+'				CASE 0
+'					fwd_id_missione = 0
+'					reset io[865 to 866]
+
+			END SELECT
+		end if
+
+
+	loop until false
+
+End Sub
+

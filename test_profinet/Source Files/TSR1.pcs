@@ -1,0 +1,52 @@
+'!TITLE "Robot program"
+#include "VAR_TAB.h"
+#include "DIO_TAB.h"
+
+
+
+DefIO num_missione_profinet = Integer, 592
+
+
+
+
+Sub Main
+	dim stato as integer
+	dim r as integer
+	dim altezza as integer
+	altezza = 20
+'	r = defWorkingArea()
+	do
+
+'		Area 1,  P(-192,-390,120), V(-192,-265,120), UO872_In_Area_Pick, -1, 0
+		Area 1, P[p10_actual_pick_point], V(50,50,altezza), UO872_In_Area_Pick, -1, 0
+		SetArea 1
+
+		Area 2, P[p1_place_taglio_dx_pz1], V(90,90,altezza), UO873_In_Area_Taglio_DX, -1, 0
+		SetArea 2
+
+		Area 3, P[p2_place_taglio_sx_pz1], V(90,90,altezza), UO874_In_Area_Taglio_SX, -1, 0
+		SetArea 3
+
+		Area 4, P[p5_place_inserimento_1_pz2], V(30,30,altezza), UO875_In_Area_Inserimento_1, -1, 0
+		SetArea 4
+
+		Area 5, P[p6_place_inserimento_2_pz2], V(30,30,altezza), UO876_In_Area_Inserimento_2, -1, 0
+		SetArea 5
+
+		Area 6, P[p7_place_inserimento_3_pz2], V(30,30,altezza), UO877_In_Area_Inserimento_3, -1, 0
+		SetArea 6
+
+		Area 7, P[p8_place_inserimento_4_pz2], V(30,30,altezza), UO878_In_Area_Inserimento_4, -1, 0
+		SetArea 7
+
+
+		stato = Status(PRO1)
+
+		delay 25
+
+
+	loop until false
+	
+	
+	
+End Sub
