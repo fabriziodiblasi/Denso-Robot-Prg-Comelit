@@ -42,6 +42,19 @@ Sub Main
 
 		stato = Status(PRO1)
 
+
+	  	Dim statosistema As Integer
+
+	  	' Acquisition of system status
+	  	statosistema = SysState
+
+	  	' Clear an error in case of any abnormality or warning
+	  	If ( statosistema And &H0082 ) Then
+
+	    	ClrErr
+
+	  	End If
+
 		delay 25
 
 

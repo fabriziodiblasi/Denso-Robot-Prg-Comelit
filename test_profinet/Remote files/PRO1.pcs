@@ -5,7 +5,7 @@
 ' --------------------------  variabili globali -----------------------------------  
 
 ' Posizione della coordinata in alto a sinistra del vassoio delle ferriti
-Dim ORIGIN As Position
+  Dim ORIGIN As Position
 
 ' ---------------------------------------------------------------------------------
 
@@ -180,7 +180,7 @@ Function moveOnPoint(pt as Position) as integer
 
 	dim dist_approccio as integer
 
-	dist_approccio = 50
+	dist_approccio = 65
 	
 	Dim motor_state As Integer
 	Dim curr_pos As Position
@@ -271,6 +271,98 @@ end Function
 
 
 
+' le coordinate dei punti sono sempre riferite al tool della pinza UNO
+
+' --------------------------------PICK DA VASSOIO-------------------------------------
+
+Function m0001_pickVassoio_a_colonne(byval id_ferrite As Integer ) as Integer 
+	' la presa dal vassoio viene sempre effettuata con la PINZA 1
+	' id_ferrite : viene fornito dal PLC, è un intero che informa il robot quale ferrite prelevare.
+	fwd_mission_running = 1
+	I[I1_NUM_FERRITE] = id_ferrite
+	fwd_id_ferrite = id_ferrite
+	
+	dim diametro_ferrite as single 'diametro ferrite [mm]
+	diametro_ferrite = 7.95
+
+	dim dist_btw_row as single	' distanza tra righe [mm]
+	dist_btw_row = 14	
+
+    if id_ferrite >= 0  and id_ferrite <=19 then
+        P[p20_riga_vass_selezionata] = P[p21_ferrite_0]
+		I[I2_NUM_COL_SELECTED] = 1
+    end if
+    if id_ferrite >= 20  and id_ferrite <=39 then
+        P[p20_riga_vass_selezionata] = P[p22_ferrite_20]
+		I[I2_NUM_COL_SELECTED] = 2
+    end if
+    if id_ferrite >= 40  and id_ferrite <=49 then
+        P[p20_riga_vass_selezionata] = P[p23_ferrite_40]
+		I[I2_NUM_COL_SELECTED] = 3
+    end if
+    if id_ferrite >= 60  and id_ferrite <=79 then
+        P[p20_riga_vass_selezionata] = P[p24_ferrite_60]
+		I[I2_NUM_COL_SELECTED] = 4
+    end if
+    if id_ferrite >= 80 then
+        P[p20_riga_vass_selezionata] = P[p25_ferrite_80]
+		I[I2_NUM_COL_SELECTED] = 5
+    end if
+
+
+
+	Dim max_col As Integer
+	Dim max_row As Integer
+	
+	' max_col = 5
+    max_row = 20
+	
+	' calcolo l'indice di riga e colonna della ferrite
+	Dim row As Integer
+	' CALCOLO LA COORDINATA X DELLA FERRITE ( 0 <= ROW <= 19)
+	row = id_ferrite Mod max_row
+
+		
+	Dim X As Single
+
+	X = posx(P[p20_riga_vass_selezionata])
+
+
+	' il vassoio delle ferriti viene percorso dal robot in questo modo:
+	' Dall'origine calcolo un offset in X ed Y in base al numero della ferrite che devo prelevare
+	' la posizione X scorre le righe
+	' la posizione Y scorre le colonne
+	
+	X = X - diametro_ferrite * row
+
+	' se ho terminato il segmento di ferriti presente nella riga della vassoio, allora devo aggiungere
+	' un offeset 
+	if row > 9 then
+		X = X - dist_btw_row	
+	end if
+	
+	' defizione del punto di pick
+	P[p10_actual_pick_point] = P[p20_riga_vass_selezionata]
+
+	' inserimento delle coordinate X ed Y calcolate nel punto di pick	
+	letx P[p10_actual_pick_point] = X
+
+	
+	' movimentazione del robot in posizione
+	dim ret_val as integer
+	ret_val = moveOnPoint(P[p10_actual_pick_point])
+
+	wait ret_val=1 	
+ 	' se tutto okay allora restituisco 1 ma prima alzo l'asta
+	fwd_mission_running = 0
+	m0001_pickVassoio_a_colonne = ret_val 	
+
+End Function
+
+
+
+' ------------------------------------------------------------------------------------
+
 
 ' le coordinate dei punti sono sempre riferite al tool della pinza UNO
 
@@ -344,6 +436,7 @@ Function m0001_pickVassoio(byval id_ferrite As Integer ) as Integer
 	m0001_pickVassoio = ret_val 	
 
 End Function
+
 
 
 ' ------------------------------------------------------------------------------------
@@ -523,109 +616,6 @@ End Function
 
 
 
-Function cicloAutomaticoSoloRobot() As Integer
-
-
-	TakeArm Keep = 0
-	motor on
-	ChangeTool  1
-
-	'definizione del punto di pick in alto a sinistra  
-	ORIGIN =  P[p0_origine_vassoio]
-'	old version
-	dim ret_val as integer
-	dim id as integer
-	dim robot_in_home as integer
-	Dim actual_pos As Position
-
-	dim missione as integer
-	missione = 1
-	
-	dim a as integer
-
-
-
-	' prelevo la prima ferrite
-	ret_val = m0001_pickVassoio(0)
-'	Delay 2000
-	
-	' lascio la ferrite nel gruppo taglio di destra
-	ret_val = m0002_placeGruppoTaglioDX()
-'	Delay 2000
-	
-	' prelevo la seconda ferrite
-	a = a + 1
-	ret_val = m0001_pickVassoio(1)
-'	Delay 2000
-
-	' lascio la ferrite nel gruppo taglio di sinistra
-	ret_val = m0003_placeGruppoTaglioSX()
-'	Delay 2000
-
-
-
-	For a = 2 To 80 Step 1
-
-'		prelevo la terza ferrite
-		a = a + 1
-		ret_val = m0001_pickVassoio(a)
-'		Delay 2000
-		'prelevo la ferrite tagliata dal gruppo DX
-		ret_val = m0004_pickGruppoTaglioDX()
-'		Delay 2000
-		'lascio quella da tagliare nel gruppo DX
-		ret_val = m0002_placeGruppoTaglioDX()
-'		Delay 2000
-		' lascio la ferrite tagliata nel gruppo 1
-		ret_val = m0006_placeGruppoInserimentoFerriteUNO()
-
-
-
-		a = a + 1
-		ret_val = m0001_pickVassoio(a)
-'		Delay 2000
-		ret_val = m0005_pickGruppoTaglioSX()
-'		Delay 2000
-		ret_val = m0003_placeGruppoTaglioSX()
-'		Delay 2000
-		ret_val = m0007_placeGruppoInserimentoFerriteDUE()
-
-
-
-		'prelevo la terza ferrite
-		a = a + 1
-		ret_val = m0001_pickVassoio(a)
-'		Delay 2000
-		'prelevo la ferrite tagliata dal gruppo DX
-		ret_val = m0004_pickGruppoTaglioDX()
-'		Delay 2000
-		'lascio quella da tagliare nel gruppo DX
-		ret_val = m0002_placeGruppoTaglioDX()
-'		Delay 2000
-		' lascio la ferrite tagliata nel gruppo 1
-		ret_val = m0008_placeGruppoInserimentoFerriteTRE()
-
-
-
-		a = a + 1
-		ret_val = m0001_pickVassoio(a)
-'		Delay 2000
-		ret_val = m0005_pickGruppoTaglioSX()
-'		Delay 2000
-		ret_val = m0003_placeGruppoTaglioSX()
-'		Delay 2000
-		ret_val = m0009_placeGruppoInserimentoFerriteQUATTRO()
-	Next
-	cicloAutomaticoSoloRobot = 1
-End Function
-
-
-
-
-
-
-
-
 ' -----------------------------------------------------------------------------------
 ' -----------------------------------------------------------------------------------
 
@@ -650,7 +640,7 @@ Sub Main
 	HighPathAccuracy True  
 	Accel 100, 100
 	PayLoad 500
-	ExtSpeed 100
+'	ExtSpeed 100
 	ExtAccel 100, 100
 
 
@@ -675,7 +665,8 @@ Sub Main
 					robot_in_home = 0
 					wait start_missione = 1 or IO[UI611_homing] = ON
 					id = id_ferrite
-					ret_val = m0001_pickVassoio(id)
+'					ret_val = m0001_pickVassoio(id)
+					ret_val = m0001_pickVassoio_a_colonne(id)
 				
 
 				CASE 2

@@ -1,0 +1,100 @@
+-46.05193	-194.774	64.37499	180	0	-165.0673	1 - Lefty | J4Single | J1Single	p[0]	p0_origine_vassoio	0
+158.5278	-227.0998	71.26018	180	0	-164.6341	1 - Lefty | J4Single | J1Single	p[1]	p1_place_taglio_dx_pz1	0
+154.2555	182.6197	72.21279	180	-3.531125E-31	-164.2213	1 - Lefty | J4Single | J1Single	p[2]	p2_place_taglio_sx_pz1	0
+94.89928	-229.0178	82.11433	180	-3.531125E-31	-164.299	1 - Lefty | J4Single | J1Single	p[3]	p3_pick_taglio_dx_pz2	0
+90.29725	180.9133	82.114	180	0	-164.5361	1 - Lefty | J4Single | J1Single	p[4]	p4_pick_taglio_sx_pz2	0
+399.1544	154.012	86.47331	180	3.531125E-31	105.9832	17 - Lefty | J4Double | J1Single	p[5]	p5_place_inserimento_1_pz2	0
+399.032	93.80427	86.16784	180	0	105.8863	17 - Lefty | J4Double | J1Single	p[6]	p6_place_inserimento_2_pz2	0
+399.9373	34.12346	86.09806	180	0	105.8615	17 - Lefty | J4Double | J1Single	p[7]	p7_place_inserimento_3_pz2	0
+400.3209	-26.27811	85.92144	180	0	105.8592	17 - Lefty | J4Double | J1Single	p[8]	p8_place_inserimento_4_pz2	0
+253.6417	-28.1869	242.3797	180	3.531125E-31	105.6259	17 - Lefty | J4Double | J1Single	p[9]	p9_homing_point	0
+-69.90985	-333.2742	63.58594	180	0	-165.073	1 - Lefty | J4Single | J1Single	p[10]	p10_actual_pick_point	0
+0	0	0	0	0	0	-1 - Undefined	p[11]	p11_	0
+0	0	0	0	0	0	-1 - Undefined	p[12]	p12_	0
+0	0	0	0	0	0	-1 - Undefined	p[13]	p13_	0
+0	0	0	0	0	0	-1 - Undefined	p[14]	p14_	0
+0	0	0	0	0	0	-1 - Undefined	p[15]	p15_	0
+0	0	0	0	0	0	-1 - Undefined	p[16]	p16_	0
+0	0	0	0	0	0	-1 - Undefined	p[17]	p17_	0
+0	0	0	0	0	0	-1 - Undefined	p[18]	p18_	0
+0	0	0	0	0	0	-1 - Undefined	p[19]	p19_	0
+-46.05985	-333.2742	63.58594	180	0	-165.073	1 - Lefty | J4Single | J1Single	p[20]	p20_riga_vass_selezionata	0
+-46.06007	-194.8075	64.35611	180	3.531125E-31	-165.141	1 - Lefty | J4Single | J1Single	p[21]	p21_ferrite_0	0
+-46.04843	-241.771	63.08	180	3.531125E-31	-165.0692	1 - Lefty | J4Single | J1Single	p[22]	p22_ferrite_20	0
+-46.05547	-288.6715	62.57944	180	0	-165.0711	1 - Lefty | J4Single | J1Single	p[23]	p23_ferrite_40	0
+-46.05985	-333.2742	63.58594	180	0	-165.073	1 - Lefty | J4Single | J1Single	p[24]	p24_ferrite_60	0
+-46.07034	-378.0061	66.14857	180	3.531125E-31	-165.0985	1 - Lefty | J4Single | J1Single	p[25]	p25_ferrite_80	0
+0	0	0	0	0	0	-1 - Undefined	p[26]	p26_	0
+0	0	0	0	0	0	-1 - Undefined	p[27]	p27_	0
+0	0	0	0	0	0	-1 - Undefined	p[28]	p28_	0
+0	0	0	0	0	0	-1 - Undefined	p[29]	p29_	0
+0	0	0	0	0	0	-1 - Undefined	p[30]	p30_	0
+0	0	0	0	0	0	-1 - Undefined	p[31]	p31_	0
+0	0	0	0	0	0	-1 - Undefined	p[32]	p32_	0
+0	0	0	0	0	0	-1 - Undefined	p[33]	p33_	0
+0	0	0	0	0	0	-1 - Undefined	p[34]	p34_	0
+0	0	0	0	0	0	-1 - Undefined	p[35]	p35_	0
+0	0	0	0	0	0	-1 - Undefined	p[36]	p36_	0
+0	0	0	0	0	0	-1 - Undefined	p[37]	p37_	0
+0	0	0	0	0	0	-1 - Undefined	p[38]	p38_	0
+0	0	0	0	0	0	-1 - Undefined	p[39]	p39_	0
+0	0	0	0	0	0	-1 - Undefined	p[40]	p40_	0
+0	0	0	0	0	0	-1 - Undefined	p[41]	p41_	0
+0	0	0	0	0	0	-1 - Undefined	p[42]	p42_	0
+0	0	0	0	0	0	-1 - Undefined	p[43]	p43_	0
+0	0	0	0	0	0	-1 - Undefined	p[44]	p44_	0
+0	0	0	0	0	0	-1 - Undefined	p[45]	p45_	0
+0	0	0	0	0	0	-1 - Undefined	p[46]	p46_	0
+0	0	0	0	0	0	-1 - Undefined	p[47]	p47_	0
+0	0	0	0	0	0	-1 - Undefined	p[48]	p48_	0
+0	0	0	0	0	0	-1 - Undefined	p[49]	p49_	0
+0	0	0	0	0	0	-1 - Undefined	p[50]	p50_	0
+0	0	0	0	0	0	-1 - Undefined	p[51]	p51_	0
+0	0	0	0	0	0	-1 - Undefined	p[52]	p52_	0
+0	0	0	0	0	0	-1 - Undefined	p[53]	p53_	0
+0	0	0	0	0	0	-1 - Undefined	p[54]	p54_	0
+0	0	0	0	0	0	-1 - Undefined	p[55]	p55_	0
+0	0	0	0	0	0	-1 - Undefined	p[56]	p56_	0
+0	0	0	0	0	0	-1 - Undefined	p[57]	p57_	0
+0	0	0	0	0	0	-1 - Undefined	p[58]	p58_	0
+0	0	0	0	0	0	-1 - Undefined	p[59]	p59_	0
+0	0	0	0	0	0	-1 - Undefined	p[60]	p60_	0
+0	0	0	0	0	0	-1 - Undefined	p[61]	p61_	0
+0	0	0	0	0	0	-1 - Undefined	p[62]	p62_	0
+0	0	0	0	0	0	-1 - Undefined	p[63]	p63_	0
+0	0	0	0	0	0	-1 - Undefined	p[64]	p64_	0
+0	0	0	0	0	0	-1 - Undefined	p[65]	p65_	0
+0	0	0	0	0	0	-1 - Undefined	p[66]	p66_	0
+0	0	0	0	0	0	-1 - Undefined	p[67]	p67_	0
+0	0	0	0	0	0	-1 - Undefined	p[68]	p68_	0
+0	0	0	0	0	0	-1 - Undefined	p[69]	p69_	0
+0	0	0	0	0	0	-1 - Undefined	p[70]	p70_	0
+0	0	0	0	0	0	-1 - Undefined	p[71]	p71_	0
+0	0	0	0	0	0	-1 - Undefined	p[72]	p72_	0
+0	0	0	0	0	0	-1 - Undefined	p[73]	p73_	0
+0	0	0	0	0	0	-1 - Undefined	p[74]	p74_	0
+0	0	0	0	0	0	-1 - Undefined	p[75]	p75_	0
+0	0	0	0	0	0	-1 - Undefined	p[76]	p76_	0
+0	0	0	0	0	0	-1 - Undefined	p[77]	p77_	0
+0	0	0	0	0	0	-1 - Undefined	p[78]	p78_	0
+0	0	0	0	0	0	-1 - Undefined	p[79]	p79_	0
+0	0	0	0	0	0	-1 - Undefined	p[80]	p80_	0
+0	0	0	0	0	0	-1 - Undefined	p[81]	p81_	0
+0	0	0	0	0	0	-1 - Undefined	p[82]	p82_	0
+0	0	0	0	0	0	-1 - Undefined	p[83]	p83_	0
+0	0	0	0	0	0	-1 - Undefined	p[84]	p84_	0
+0	0	0	0	0	0	-1 - Undefined	p[85]	p85_	0
+0	0	0	0	0	0	-1 - Undefined	p[86]	p86_	0
+0	0	0	0	0	0	-1 - Undefined	p[87]	p87_	0
+0	0	0	0	0	0	-1 - Undefined	p[88]	p88_	0
+0	0	0	0	0	0	-1 - Undefined	p[89]	p89_	0
+0	0	0	0	0	0	-1 - Undefined	p[90]	p90_	0
+0	0	0	0	0	0	-1 - Undefined	p[91]	p91_	0
+0	0	0	0	0	0	-1 - Undefined	p[92]	p92_	0
+0	0	0	0	0	0	-1 - Undefined	p[93]	p93_	0
+0	0	0	0	0	0	-1 - Undefined	p[94]	p94_	0
+0	0	0	0	0	0	-1 - Undefined	p[95]	p95_	0
+0	0	0	0	0	0	-1 - Undefined	p[96]	p96_	0
+0	0	0	0	0	0	-1 - Undefined	p[97]	p97_	0
+0	0	0	0	0	0	-1 - Undefined	p[98]	p98_	0
+0	0	0	0	0	0	-1 - Undefined	p[99]	p99_	0
