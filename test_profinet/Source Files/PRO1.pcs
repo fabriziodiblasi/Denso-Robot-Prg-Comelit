@@ -636,12 +636,15 @@ Sub Main
 	Dim actual_pos As Position
 
 	Dim timeout as integer
-	SpeedMode 0 
+'	SpeedMode 0 
 	HighPathAccuracy True  
 	Accel 100, 100
 	PayLoad 500
-'	ExtSpeed 100
-	ExtAccel 100, 100
+'	Set traveling speed to 80%
+  	Speed 30
+'	ExtSpeed 30
+
+'	ExtAccel 100, 100
 
 
 	timeout = 60000
