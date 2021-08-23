@@ -18,6 +18,9 @@ DefIO id_ferrite = Integer, 560
 ' numero della missione
 DefIO num_missione = Integer, 592
 
+' override velocità
+DefIO override_velocita = Integer, 672
+
 ' bit start missione
 DefIO start_missione = Bit, 608
 
@@ -92,16 +95,16 @@ defio fwd_in_area_inserimento_4 = Bit, 878
 
 
 ' return the current active program
-defio fwd_num_prg = integer, 928
+' defio fwd_num_prg = integer, 928
 
 ' return the current setting value of external speed.
-defio fwd_speed_vel= integer, 944
+defio fwd_speed_vel= integer, 928
 
 ' return current setting value of external acceleration.
-DefIO fwd_acceleration = integer, 960
+DefIO fwd_acceleration = integer, 944
 
 ' return the current setting value of external deceleration.
-DefIO fwd_decellaration = integer, 976
+DefIO fwd_decellaration = integer, 960
 
 
 
@@ -157,7 +160,7 @@ end Function
 
 
 function robotExternalInfo() as integer
-	fwd_num_prg = 1
+
 
 	fwd_speed_vel= CurExtSpd
 	' PrintDbg fwd_speed_vel
@@ -640,15 +643,19 @@ Sub Main
 	HighPathAccuracy True  
 	Accel 100, 100
 	PayLoad 500
-'	Set traveling speed to 80%
-  	Speed 30
-'	ExtSpeed 30
+
+
 
 '	ExtAccel 100, 100
 
 
 	timeout = 60000
 	do 
+		if override_velocita > 0 then
+			ExtSpeed override_velocita
+		else
+			ExtSpeed 30
+		end if
 	
 		ret_val = robotExternalInfo()
 '		ret_val = defWorkingArea()
