@@ -232,8 +232,12 @@ Function moveOnPoint(pt as Position) as integer
 
 
 
+	if I[I0_NUM_MISSIONE] == 1 then	
+		Move L, @0 pt, s=20
+	else
+		Move L, @0 pt, s=100
+	end if
 
-	Move L, @0 pt, s=100
 	WaitMotion 5
 	delay 100
 
@@ -651,11 +655,11 @@ Sub Main
 
 	timeout = 60000
 	do 
-		if override_velocita > 0 then
-			ExtSpeed override_velocita
-		else
-			ExtSpeed 30
-		end if
+'		if override_velocita > 0 then
+'			ExtSpeed override_velocita
+'		else
+'			ExtSpeed 30
+'		end if
 	
 		ret_val = robotExternalInfo()
 '		ret_val = defWorkingArea()
