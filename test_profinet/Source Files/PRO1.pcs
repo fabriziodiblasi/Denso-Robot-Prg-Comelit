@@ -215,6 +215,9 @@ Function moveOnPoint(pt as Position) as integer
 		WaitMotion 6
 		approach p, pt, dist_approccio, Speed = 100	
 
+	ElseIf I[I0_NUM_MISSIONE] == 1 Then	
+		approach p, pt, 25, Speed = 100
+
 	else
 		approach p, pt, dist_approccio, Speed = 100		
 	end if
@@ -249,7 +252,11 @@ Function moveOnPoint(pt as Position) as integer
 	wait (enable_exit = ON)  or (IO[UI611_homing] = ON)  
 
 	' Move to a position 100 mm away from the current position
-  	Depart L, dist_approccio, S = 100
+	if I[I0_NUM_MISSIONE] == 1 then	
+		Depart L, 25, S = 20
+	else
+  		Depart L, dist_approccio, S = 100
+	end if
 
 	WaitMotion 6
 
@@ -655,11 +662,9 @@ Sub Main
 
 	timeout = 60000
 	do 
-'		if override_velocita > 0 then
-'			ExtSpeed override_velocita
-'		else
-'			ExtSpeed 30
-'		end if
+		if override_velocita > 0 then
+			ExtSpeed override_velocita
+		end if
 	
 		ret_val = robotExternalInfo()
 '		ret_val = defWorkingArea()
