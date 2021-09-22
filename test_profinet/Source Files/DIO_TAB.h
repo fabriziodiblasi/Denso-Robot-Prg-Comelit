@@ -527,7 +527,7 @@
 #define	UI609_enable_in	609	' UI[609]
 #define	UI610_enable_exit	610	' UI[610]
 #define	UI611_homing	611	' UI[611]
-#define	UI612_	612	' UI[612]
+#define	UI612_sospendi_task	612	' UI[612]
 #define	UI613_	613	' UI[613]
 #define	UI614_	614	' UI[614]
 #define	UI615_	615	' UI[615]

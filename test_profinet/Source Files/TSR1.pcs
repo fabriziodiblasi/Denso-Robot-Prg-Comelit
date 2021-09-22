@@ -6,11 +6,11 @@
 
 DefIO num_missione_profinet = Integer, 592
 
-
+DefIO sospendi_task = Bit, 612
 
 
 Sub Main
-	dim stato as integer
+	dim stato_prg as integer
 	dim r as integer
 	dim altezza as integer
 	altezza = 20
@@ -40,7 +40,7 @@ Sub Main
 		SetArea 7
 
 
-		stato = Status(PRO1)
+		stato_prg = Status(PRO1)
 
 
 	  	Dim statosistema As Integer
@@ -54,6 +54,17 @@ Sub Main
 	    	ClrErr
 
 	  	End If
+
+
+		if io[UI612_sospendi_task] = ON then
+			SuspendByName "PRO1"
+		end if
+
+
+		if io[UI612_sospendi_task] = OFF and stato_prg <>3 then
+			RunByName "PRO1"
+		end if		
+		
 
 		delay 25
 
