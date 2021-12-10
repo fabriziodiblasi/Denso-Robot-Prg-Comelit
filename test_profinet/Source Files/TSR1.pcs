@@ -3,7 +3,7 @@
 #include "DIO_TAB.h"
 
 
-
+Dim DEBUG_MODE_TSR as Integer
 DefIO num_missione_profinet = Integer, 592
 
 DefIO sospendi_task = Bit, 612
@@ -15,6 +15,8 @@ Sub Main
 	dim altezza as integer
 	altezza = 20
 '	r = defWorkingArea()
+	DEBUG_MODE_TSR = 1
+
 	do
 
 '		Area 1,  P(-192,-390,120), V(-192,-265,120), UO872_In_Area_Pick, -1, 0
@@ -55,16 +57,16 @@ Sub Main
 
 	  	End If
 
+		if DEBUG_MODE_TSR = 0 then
+			if io[UI612_sospendi_task] = ON then
+				SuspendByName "PRO1"
+			end if
 
-		if io[UI612_sospendi_task] = ON then
-			SuspendByName "PRO1"
+
+			if io[UI612_sospendi_task] = OFF and stato_prg <>3 then
+				RunByName "PRO1"
+			end if		
 		end if
-
-
-		if io[UI612_sospendi_task] = OFF and stato_prg <>3 then
-			RunByName "PRO1"
-		end if		
-		
 
 		delay 25
 

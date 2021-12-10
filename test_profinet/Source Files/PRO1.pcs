@@ -7,6 +7,10 @@
 ' Posizione della coordinata in alto a sinistra del vassoio delle ferriti
   Dim ORIGIN As Position
 
+  Dim DEBUG_MODE as Integer
+  
+
+
 ' ---------------------------------------------------------------------------------
 
 
@@ -196,7 +200,7 @@ Function moveOnPoint(pt as Position) as integer
  
 
 	fwd_out_of_area = 1 ' PLC 44.2
-' 	wait enable_in = 1
+' 	wait DEBUG_MODE=1 or enable_in = 1
 
 	fwd_in_pos = 0
 
@@ -227,7 +231,7 @@ Function moveOnPoint(pt as Position) as integer
 
 	'r = setAreaPLC()
 
-	wait (enable_in = ON)  or (IO[UI611_homing] = ON)  ' PLC 12.1
+	wait DEBUG_MODE=1 or (enable_in = ON)  or (IO[UI611_homing] = ON)  ' PLC 12.1
 	' aspetto che inizi la rampa di accellerazione per comunicare al PLC che sto nell'area di ingombro
 	WaitMotion 5	
 	' setto a 0 il bit per informare il PLC che sono in ingombro
@@ -249,7 +253,7 @@ Function moveOnPoint(pt as Position) as integer
 
 	' aspetto che il plc informi il robot che può andarsene dall'area di lavoro
 	' movimentazione del robot fuori dal punto finale e posizionamento in fuori ingombro
-	wait (enable_exit = ON)  or (IO[UI611_homing] = ON)  
+	wait DEBUG_MODE=1 or (enable_exit = ON)  or (IO[UI611_homing] = ON)  
 
 	' Move to a position 100 mm away from the current position
 	if I[I0_NUM_MISSIONE] == 1 then	
@@ -630,13 +634,129 @@ End Function
 
 
 
+
+
+
+'************************* DEBUG MISSION ***************************
+
+Function m666_Debug_mission() as Integer
+	'definizione del punto di pick in alto a sinistra  
+	ORIGIN =  P[p0_origine_vassoio]
+'	old version
+	dim ret_val as integer
+	dim id as integer
+	dim robot_in_home as integer
+	Dim actual_pos As Position
+
+	dim missione as integer
+	missione = 1
+	
+	dim a as integer
+
+
+	' prelevo la prima ferrite
+	ret_val = m0001_pickVassoio(0)
+	Delay 2000
+	
+	' lascio la ferrite nel gruppo taglio di destra
+	ret_val = m0002_placeGruppoTaglioDX()
+	Delay 2000
+	
+	' prelevo la seconda ferrite
+	a = a + 1
+	ret_val = m0001_pickVassoio(1)
+	Delay 2000
+
+	' lascio la ferrite nel gruppo taglio di sinistra
+	ret_val = m0003_placeGruppoTaglioSX()
+	Delay 2000
+
+
+
+	For a = 2 To 80 Step 1
+
+'		prelevo la prima ferrite
+'		ret_val = m0001_pickVassoio(a)
+'		Delay 2000
+'		
+'		lascio la ferrite nel gruppo taglio di destra
+'		ret_val = m0002_placeGruppoTaglioDX()
+'		Delay 2000
+'		
+'		prelevo la seconda ferrite
+'		a = a + 1
+'		ret_val = m0001_pickVassoio(a)
+'		Delay 2000
+'
+'		lascio la ferrite nel gruppo taglio di sinistra
+'		ret_val = m0003_placeGruppoTaglioSX()
+'		Delay 2000
+'
+
+'		prelevo la terza ferrite
+		a = a + 1
+		ret_val = m0001_pickVassoio(a)
+		Delay 2000
+		'prelevo la ferrite tagliata dal gruppo DX
+		ret_val = m0004_pickGruppoTaglioDX()
+		Delay 2000
+		'lascio quella da tagliare nel gruppo DX
+		ret_val = m0002_placeGruppoTaglioDX()
+		Delay 2000
+		' lascio la ferrite tagliata nel gruppo 1
+		ret_val = m0006_placeGruppoInserimentoFerriteUNO()
+
+
+
+		a = a + 1
+		ret_val = m0001_pickVassoio(a)
+		Delay 2000
+		ret_val = m0005_pickGruppoTaglioSX()
+		Delay 2000
+		ret_val = m0003_placeGruppoTaglioSX()
+		Delay 2000
+		ret_val = m0007_placeGruppoInserimentoFerriteDUE()
+
+
+
+		'prelevo la terza ferrite
+		a = a + 1
+		ret_val = m0001_pickVassoio(a)
+		Delay 2000
+		'prelevo la ferrite tagliata dal gruppo DX
+		ret_val = m0004_pickGruppoTaglioDX()
+		Delay 2000
+		'lascio quella da tagliare nel gruppo DX
+		ret_val = m0002_placeGruppoTaglioDX()
+		Delay 2000
+		' lascio la ferrite tagliata nel gruppo 1
+		ret_val = m0008_placeGruppoInserimentoFerriteTRE()
+
+
+
+		a = a + 1
+		ret_val = m0001_pickVassoio(a)
+		Delay 2000
+		ret_val = m0005_pickGruppoTaglioSX()
+		Delay 2000
+		ret_val = m0003_placeGruppoTaglioSX()
+		Delay 2000
+		ret_val = m0009_placeGruppoInserimentoFerriteQUATTRO()
+	Next
+
+	m666_Debug_mission = 1
+
+End Function
+
+
+
 ' -----------------------------------------------------------------------------------
 ' -----------------------------------------------------------------------------------
 
 
 
 Sub Main
-
+	DEBUG_MODE = 1  
 	TakeArm Keep = 0
 '	motor on
 	ChangeTool  1
@@ -660,105 +780,111 @@ Sub Main
 '	ExtAccel 100, 100
 
 
-	timeout = 60000
-	do 
-		if override_velocita > 0 then
-			ExtSpeed override_velocita
-		end if
+	timeout = 60000		
+	if DEBUG_MODE = 0 then
+		do 
+			if override_velocita > 0 then
+				ExtSpeed override_velocita
+			end if
 	
-		ret_val = robotExternalInfo()
-'		ret_val = defWorkingArea()
-		' numero della missione
-'		DefIO num_missione = Integer, 592
+			ret_val = robotExternalInfo()
+	'		ret_val = defWorkingArea()
+			' numero della missione
+	'		DefIO num_missione = Integer, 592
 		
-		I[I0_NUM_MISSIONE] = num_missione
+			I[I0_NUM_MISSIONE] = num_missione
 
-		if io[UI611_homing] = ON then
-			PrintDbg "missione home"
-			ret_val = m0010_Homing()
-		else 
-			SELECT CASE I[I0_NUM_MISSIONE]
-				CASE 1
-					PrintDbg "missione 1 - pick di una nuova ferrite"
-					fwd_id_missione = 1
-					robot_in_home = 0
-					wait start_missione = 1 or IO[UI611_homing] = ON
-					id = id_ferrite
-'					ret_val = m0001_pickVassoio(id)
-					ret_val = m0001_pickVassoio_a_colonne(id)
+			if io[UI611_homing] = ON then
+				PrintDbg "missione home"
+				ret_val = m0010_Homing()
+			else 
+				SELECT CASE I[I0_NUM_MISSIONE]
+					CASE 1
+						PrintDbg "missione 1 - pick di una nuova ferrite"
+						fwd_id_missione = 1
+						robot_in_home = 0
+						wait start_missione = 1 or IO[UI611_homing] = ON
+						id = id_ferrite
+	'					ret_val = m0001_pickVassoio(id)
+						ret_val = m0001_pickVassoio_a_colonne(id)
 				
 
-				CASE 2
-					PrintDbg "missione 2 - place ferrite taglio DX"
-					fwd_id_missione = 2
-					robot_in_home = 0
-					wait start_missione = 1 or IO[UI611_homing] = ON
-					ret_val = m0002_placeGruppoTaglioDX()
+					CASE 2
+						PrintDbg "missione 2 - place ferrite taglio DX"
+						fwd_id_missione = 2
+						robot_in_home = 0
+						wait start_missione = 1 or IO[UI611_homing] = ON
+						ret_val = m0002_placeGruppoTaglioDX()
 				
 
-				CASE 3
-					PrintDbg "missione 3 - place ferrite taglio SX"
-					fwd_id_missione = 3
-					robot_in_home = 0
-					wait start_missione = 1 or IO[UI611_homing] = ON
-					ret_val = m0003_placeGruppoTaglioSX()
+					CASE 3
+						PrintDbg "missione 3 - place ferrite taglio SX"
+						fwd_id_missione = 3
+						robot_in_home = 0
+						wait start_missione = 1 or IO[UI611_homing] = ON
+						ret_val = m0003_placeGruppoTaglioSX()
 				
 
-				CASE 4
-					PrintDbg "missione 4 - pick ferrite completata taglio DX"
-					fwd_id_missione = 4
-					robot_in_home = 0
-					wait start_missione = 1 or IO[UI611_homing] = ON
-					ret_val = m0004_pickGruppoTaglioDX()
+					CASE 4
+						PrintDbg "missione 4 - pick ferrite completata taglio DX"
+						fwd_id_missione = 4
+						robot_in_home = 0
+						wait start_missione = 1 or IO[UI611_homing] = ON
+						ret_val = m0004_pickGruppoTaglioDX()
 				
 		
-				CASE 5
-					PrintDbg "missione 5 - pick ferrite completata taglio SX"
-					fwd_id_missione = 5
-					robot_in_home = 0
-					wait start_missione = 1 or IO[UI611_homing] = ON
-					ret_val = m0005_pickGruppoTaglioSX()
+					CASE 5
+						PrintDbg "missione 5 - pick ferrite completata taglio SX"
+						fwd_id_missione = 5
+						robot_in_home = 0
+						wait start_missione = 1 or IO[UI611_homing] = ON
+						ret_val = m0005_pickGruppoTaglioSX()
 				
 
-				CASE 6
-					PrintDbg "missione 6 - place inserimento 1"
-					fwd_id_missione = 6
-					robot_in_home = 0
-					wait start_missione = 1 or IO[UI611_homing] = ON
-					ret_val = m0006_placeGruppoInserimentoFerriteUNO()
+					CASE 6
+						PrintDbg "missione 6 - place inserimento 1"
+						fwd_id_missione = 6
+						robot_in_home = 0
+						wait start_missione = 1 or IO[UI611_homing] = ON
+						ret_val = m0006_placeGruppoInserimentoFerriteUNO()
 				
 
-				CASE 7
-					PrintDbg "missione 7 - place inserimento 2"
-					fwd_id_missione = 7
-					robot_in_home = 0
-					wait start_missione = 1 or IO[UI611_homing] = ON
-					ret_val = m0007_placeGruppoInserimentoFerriteDUE()
+					CASE 7
+						PrintDbg "missione 7 - place inserimento 2"
+						fwd_id_missione = 7
+						robot_in_home = 0
+						wait start_missione = 1 or IO[UI611_homing] = ON
+						ret_val = m0007_placeGruppoInserimentoFerriteDUE()
 				
 
-				CASE 8
-					PrintDbg "missione 8 - place inserimento 3"
-					fwd_id_missione = 8
-					robot_in_home = 0
-					wait start_missione = 1 or IO[UI611_homing] = ON
-					ret_val = m0008_placeGruppoInserimentoFerriteTRE()
+					CASE 8
+						PrintDbg "missione 8 - place inserimento 3"
+						fwd_id_missione = 8
+						robot_in_home = 0
+						wait start_missione = 1 or IO[UI611_homing] = ON
+						ret_val = m0008_placeGruppoInserimentoFerriteTRE()
 				
-				CASE 9
-					PrintDbg "missione 9 - place inserimento 4"
-					fwd_id_missione = 9
-					robot_in_home = 0
-					wait start_missione = 1 or IO[UI611_homing] = ON
-					ret_val = m0009_placeGruppoInserimentoFerriteQUATTRO()
+					CASE 9
+						PrintDbg "missione 9 - place inserimento 4"
+						fwd_id_missione = 9
+						robot_in_home = 0
+						wait start_missione = 1 or IO[UI611_homing] = ON
+						ret_val = m0009_placeGruppoInserimentoFerriteQUATTRO()
 				
-'				CASE 0
-'					fwd_id_missione = 0
-'					reset io[865 to 866]
+	'				CASE 0
+	'					fwd_id_missione = 0
+	'					reset io[865 to 866]
 
-			END SELECT
-		end if
+				END SELECT
+			end if
 
 
-	loop until false
+		loop until false
+
+	else
+		ret_val = m666_Debug_mission()
+		
+	end if
 
 End Sub
 
