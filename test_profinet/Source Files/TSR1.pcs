@@ -15,7 +15,7 @@ Sub Main
 	dim altezza as integer
 	altezza = 20
 '	r = defWorkingArea()
-	DEBUG_MODE_TSR = 1
+	DEBUG_MODE_TSR = 0
 
 	do
 
