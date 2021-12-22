@@ -240,6 +240,11 @@ Function moveOnPoint(pt as Position) as integer
 	'r = setAreaPLC()
 
 	wait DEBUG_MODE=1 or (enable_in = ON)  or (IO[UI611_homing] = ON)  ' PLC 12.1
+
+	if IO[UI611_homing] = ON then
+		Exit Function 
+	end if
+
 	' aspetto che inizi la rampa di accellerazione per comunicare al PLC che sto nell'area di ingombro
 	WaitMotion 5	
 	' setto a 0 il bit per informare il PLC che sono in ingombro
@@ -262,6 +267,10 @@ Function moveOnPoint(pt as Position) as integer
 	' aspetto che il plc informi il robot che può andarsene dall'area di lavoro
 	' movimentazione del robot fuori dal punto finale e posizionamento in fuori ingombro
 	wait DEBUG_MODE=1 or (enable_exit = ON)  or (IO[UI611_homing] = ON)  
+	
+	if IO[UI611_homing] = ON then
+		Exit Function 
+	end if
 
 	' Move to a position 100 mm away from the current position
 	if I[I0_NUM_MISSIONE] == 1 then	
@@ -314,7 +323,7 @@ Function m0001_pickVassoio_a_colonne(byval id_ferrite As Integer ) as Integer
 
 
 	dim dist_btw_row as single	' distanza tra righe [mm] : è la distanza tra la decima e l'undicesima ferrite
-	dist_btw_row = 13	
+	dist_btw_row = 11	
 
     if id_ferrite >= 0  and id_ferrite <=19 then
         P[p20_riga_vass_selezionata] = P[p21_ferrite_0]
