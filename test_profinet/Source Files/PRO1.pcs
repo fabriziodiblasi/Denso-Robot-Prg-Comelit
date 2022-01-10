@@ -323,7 +323,7 @@ Function m0001_pickVassoio_a_colonne(byval id_ferrite As Integer ) as Integer
 
 
 	dim dist_btw_row as single	' distanza tra righe [mm] : è la distanza tra la decima e l'undicesima ferrite
-	dist_btw_row = 13	
+	dist_btw_row = 14
 
     if id_ferrite >= 0  and id_ferrite <=19 then
         P[p20_riga_vass_selezionata] = P[p21_ferrite_0]
@@ -352,7 +352,7 @@ Function m0001_pickVassoio_a_colonne(byval id_ferrite As Integer ) as Integer
 	Dim max_row As Integer
 	
 	' max_col = 5
-    max_row = 20
+    max_row = 10
 	
 	' calcolo l'indice di riga e colonna della ferrite
 	Dim row As Integer
@@ -374,10 +374,10 @@ Function m0001_pickVassoio_a_colonne(byval id_ferrite As Integer ) as Integer
 
 	' se ho terminato il segmento di ferriti presente nella riga della vassoio, allora devo aggiungere
 	' un offeset 
-	if row > 9 then
-		X = X - dist_btw_row	
-	end if
-	
+'	if row > 9 then
+'		X = X - dist_btw_row	
+'	end if
+'	
 	' defizione del punto di pick
 	P[p10_actual_pick_point] = P[p20_riga_vass_selezionata]
 
@@ -658,115 +658,115 @@ End Function
 
 '************************* DEBUG MISSION ***************************
 
-Function m666_Debug_mission() as Integer
-	'definizione del punto di pick in alto a sinistra  
-	ORIGIN =  P[p0_origine_vassoio]
-'	old version
-	dim ret_val as integer
-	dim id as integer
-	dim robot_in_home as integer
-	Dim actual_pos As Position
-
-	dim missione as integer
-	missione = 1
-	
-	dim a as integer
-
-
-	' prelevo la prima ferrite
-	ret_val = m0001_pickVassoio_a_colonne(0)
-	Delay 2000
-	
-	' lascio la ferrite nel gruppo taglio di destra
-	ret_val = m0002_placeGruppoTaglioDX()
-	Delay 2000
-	
-	' prelevo la seconda ferrite
-	a = a + 1
-	ret_val = m0001_pickVassoio_a_colonne(1)
-	Delay 2000
-
-	' lascio la ferrite nel gruppo taglio di sinistra
-	ret_val = m0003_placeGruppoTaglioSX()
-	Delay 2000
-
-
-
-	For a = 2 To 80 Step 1
-
-'		prelevo la prima ferrite
-'		ret_val = m0001_pickVassoio(a)
+'Function m666_Debug_mission() as Integer
+'	'definizione del punto di pick in alto a sinistra  
+'	ORIGIN =  P[p0_origine_vassoio]
+''	old version
+'	dim ret_val as integer
+'	dim id as integer
+'	dim robot_in_home as integer
+'	Dim actual_pos As Position
+'
+'	dim missione as integer
+'	missione = 1
+'	
+'	dim a as integer
+'
+'
+'	' prelevo la prima ferrite
+'	ret_val = m0001_pickVassoio_a_colonne(0)
+'	Delay 2000
+'	
+'	' lascio la ferrite nel gruppo taglio di destra
+'	ret_val = m0002_placeGruppoTaglioDX()
+'	Delay 2000
+'	
+'	' prelevo la seconda ferrite
+'	a = a + 1
+'	ret_val = m0001_pickVassoio_a_colonne(1)
+'	Delay 2000
+'
+'	' lascio la ferrite nel gruppo taglio di sinistra
+'	ret_val = m0003_placeGruppoTaglioSX()
+'	Delay 2000
+'
+'
+'
+'	For a = 2 To 80 Step 1
+'
+''		prelevo la prima ferrite
+''		ret_val = m0001_pickVassoio(a)
+''		Delay 2000
+''		
+''		lascio la ferrite nel gruppo taglio di destra
+''		ret_val = m0002_placeGruppoTaglioDX()
+''		Delay 2000
+''		
+''		prelevo la seconda ferrite
+''		a = a + 1
+''		ret_val = m0001_pickVassoio(a)
+''		Delay 2000
+''
+''		lascio la ferrite nel gruppo taglio di sinistra
+''		ret_val = m0003_placeGruppoTaglioSX()
+''		Delay 2000
+''
+'
+''		prelevo la terza ferrite
+'		a = a + 1
+'		ret_val = m0001_pickVassoio_a_colonne(a)
 '		Delay 2000
-'		
-'		lascio la ferrite nel gruppo taglio di destra
+'		'prelevo la ferrite tagliata dal gruppo DX
+'		ret_val = m0004_pickGruppoTaglioDX()
+'		Delay 2000
+'		'lascio quella da tagliare nel gruppo DX
 '		ret_val = m0002_placeGruppoTaglioDX()
 '		Delay 2000
-'		
-'		prelevo la seconda ferrite
-'		a = a + 1
-'		ret_val = m0001_pickVassoio(a)
-'		Delay 2000
+'		' lascio la ferrite tagliata nel gruppo 1
+'		ret_val = m0006_placeGruppoInserimentoFerriteUNO()
 '
-'		lascio la ferrite nel gruppo taglio di sinistra
+'
+'
+'		a = a + 1
+'		ret_val = m0001_pickVassoio_a_colonne(a)
+'		Delay 2000
+'		ret_val = m0005_pickGruppoTaglioSX()
+'		Delay 2000
 '		ret_val = m0003_placeGruppoTaglioSX()
 '		Delay 2000
+'		ret_val = m0007_placeGruppoInserimentoFerriteDUE()
 '
-
-'		prelevo la terza ferrite
-		a = a + 1
-		ret_val = m0001_pickVassoio_a_colonne(a)
-		Delay 2000
-		'prelevo la ferrite tagliata dal gruppo DX
-		ret_val = m0004_pickGruppoTaglioDX()
-		Delay 2000
-		'lascio quella da tagliare nel gruppo DX
-		ret_val = m0002_placeGruppoTaglioDX()
-		Delay 2000
-		' lascio la ferrite tagliata nel gruppo 1
-		ret_val = m0006_placeGruppoInserimentoFerriteUNO()
-
-
-
-		a = a + 1
-		ret_val = m0001_pickVassoio_a_colonne(a)
-		Delay 2000
-		ret_val = m0005_pickGruppoTaglioSX()
-		Delay 2000
-		ret_val = m0003_placeGruppoTaglioSX()
-		Delay 2000
-		ret_val = m0007_placeGruppoInserimentoFerriteDUE()
-
-
-
-		'prelevo la terza ferrite
-		a = a + 1
-		ret_val = m0001_pickVassoio_a_colonne(a)
-		Delay 2000
-		'prelevo la ferrite tagliata dal gruppo DX
-		ret_val = m0004_pickGruppoTaglioDX()
-		Delay 2000
-		'lascio quella da tagliare nel gruppo DX
-		ret_val = m0002_placeGruppoTaglioDX()
-		Delay 2000
-		' lascio la ferrite tagliata nel gruppo 1
-		ret_val = m0008_placeGruppoInserimentoFerriteTRE()
-
-
-
-		a = a + 1
-		ret_val = m0001_pickVassoio_a_colonne(a)
-		Delay 2000
-		ret_val = m0005_pickGruppoTaglioSX()
-		Delay 2000
-		ret_val = m0003_placeGruppoTaglioSX()
-		Delay 2000
-		ret_val = m0009_placeGruppoInserimentoFerriteQUATTRO()
-	Next
-
-	m666_Debug_mission = 1
-
-End Function
-
+'
+'
+'		'prelevo la terza ferrite
+'		a = a + 1
+'		ret_val = m0001_pickVassoio_a_colonne(a)
+'		Delay 2000
+'		'prelevo la ferrite tagliata dal gruppo DX
+'		ret_val = m0004_pickGruppoTaglioDX()
+'		Delay 2000
+'		'lascio quella da tagliare nel gruppo DX
+'		ret_val = m0002_placeGruppoTaglioDX()
+'		Delay 2000
+'		' lascio la ferrite tagliata nel gruppo 1
+'		ret_val = m0008_placeGruppoInserimentoFerriteTRE()
+'
+'
+'
+'		a = a + 1
+'		ret_val = m0001_pickVassoio_a_colonne(a)
+'		Delay 2000
+'		ret_val = m0005_pickGruppoTaglioSX()
+'		Delay 2000
+'		ret_val = m0003_placeGruppoTaglioSX()
+'		Delay 2000
+'		ret_val = m0009_placeGruppoInserimentoFerriteQUATTRO()
+'	Next
+'
+'	m666_Debug_mission = 1
+'
+'End Function
+'
 
 
 ' -----------------------------------------------------------------------------------
@@ -792,7 +792,7 @@ Sub Main
 '	SpeedMode 0 
 	HighPathAccuracy True  
 	Accel 100, 100
-	PayLoad 500
+	PayLoad 850
 
 
 
@@ -877,23 +877,23 @@ Sub Main
 						ret_val = m0007_placeGruppoInserimentoFerriteDUE()
 				
 
-					CASE 8
-						PrintDbg "missione 8 - place inserimento 3"
-						fwd_id_missione = 8
-						robot_in_home = 0
-						wait start_missione = 1 or IO[UI611_homing] = ON
-						ret_val = m0008_placeGruppoInserimentoFerriteTRE()
+'					CASE 8
+'						PrintDbg "missione 8 - place inserimento 3"
+'						fwd_id_missione = 8
+'						robot_in_home = 0
+'						wait start_missione = 1 or IO[UI611_homing] = ON
+'						ret_val = m0008_placeGruppoInserimentoFerriteTRE()
+'				
+'					CASE 9
+'						PrintDbg "missione 9 - place inserimento 4"
+'						fwd_id_missione = 9
+'						robot_in_home = 0
+'						wait start_missione = 1 or IO[UI611_homing] = ON
+'						ret_val = m0009_placeGruppoInserimentoFerriteQUATTRO()
 				
-					CASE 9
-						PrintDbg "missione 9 - place inserimento 4"
-						fwd_id_missione = 9
-						robot_in_home = 0
-						wait start_missione = 1 or IO[UI611_homing] = ON
-						ret_val = m0009_placeGruppoInserimentoFerriteQUATTRO()
-				
-	'				CASE 0
-	'					fwd_id_missione = 0
-	'					reset io[865 to 866]
+'					CASE 0
+'						fwd_id_missione = 0
+'						reset io[865 to 866]
 
 				END SELECT
 			end if
@@ -902,8 +902,8 @@ Sub Main
 		loop until false
 
 	else
-		ret_val = m666_Debug_mission()
-		
+		'ret_val = m666_Debug_mission()
+		ret_val = 0
 	end if
 
 End Sub
