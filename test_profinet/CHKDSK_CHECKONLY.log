@@ -13,26 +13,26 @@ Progress: 0 of 0 done; Stage: 99%; Total: 34%; ETA:   0:00:03 ..               
 Progress: 0 of 0 done; Stage: 99%; Total: 34%; ETA:   0:00:02 ...                                                                                                                                                                                0 bad file records processed.                                     
 
 Stage 2: Examining file name linkage ...
-Progress: 622 of 622 done; Stage: 100%; Total: 72%; ETA:   0:00:01                                                                                                                                                                                    622 index entries processed.                                                       
+Progress: 532 of 622 done; Stage: 85%; Total: 66%; ETA:   0:00:01    Progress: 622 of 622 done; Stage: 100%; Total: 72%; ETA:   0:00:01 .                                                                                                                                                                                  622 index entries processed.                                                       
 Index verification completed.
-Progress: 0 of 0 done; Stage: 99%; Total: 72%; ETA:   0:00:01 .                                                                                                                                                                                  0 unindexed files scanned.                                        
-Progress: 0 of 0 done; Stage: 99%; Total: 72%; ETA:   0:00:01 ..                                                                                                                                                                                 0 unindexed files recovered to lost and found.                    
+Progress: 0 of 0 done; Stage: 99%; Total: 72%; ETA:   0:00:01 ..                                                                                                                                                                                 0 unindexed files scanned.                                        
+Progress: 0 of 0 done; Stage: 99%; Total: 72%; ETA:   0:00:01 ...                                                                                                                                                                                0 unindexed files recovered to lost and found.                    
 
 Stage 3: Examining security descriptors ...
 Security descriptor verification completed.
-Progress: 0 of 0 done; Stage: 100%; Total: 99%; ETA:   0:00:00 ...                                                                                                                                                                                55 data files processed.                                           
+Progress: 0 of 0 done; Stage: 100%; Total: 99%; ETA:   0:00:00                                                                                                                                                                                    55 data files processed.                                           
 
 Windows has scanned the file system and found no problems.
 No further action is required.
 
    2864124 KB total disk space.
-     55512 KB in 92 files.
+     55528 KB in 92 files.
        116 KB in 57 indexes.
          0 KB in bad sectors.
       8188 KB in use by the system.
       7168 KB occupied by the log file.
-   2800308 KB available on disk.
+   2800292 KB available on disk.
 
       4096 bytes in each allocation unit.
     716031 total allocation units on disk.
-    700077 allocation units available on disk.
+    700073 allocation units available on disk.
